@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fidelis BarberPro</title>
+<style>
+:root{--bg:#0f1115;--panel:#171a21;--panel2:#1f2430;--line:#2a3040;--text:#e8ecf4;--muted:#9aa4b5;--gold:#d4af37;--green:#2fbf71}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:10px 14px;background:var(--panel2);color:var(--text)}
+button.primary{background:var(--gold);color:#151515;font-weight:700}button.danger{background:#3a1d20;color:#ff8a8d}button.ghost{background:transparent;border:1px solid var(--line)}
+input,select,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:#12151c;color:var(--text);font:inherit}
+label{display:block;margin:10px 0 5px;color:var(--muted);font-size:.9rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}table{width:100%;border-collapse:collapse;min-width:760px}
+th,td{padding:11px;border-bottom:1px solid var(--line);text-align:left;font-size:.92rem}th{background:#1b202a;color:var(--muted)}
+.badge{padding:3px 9px;border-radius:999px;font-size:.75rem;font-weight:700}.admin{background:#3b2f10;color:var(--gold)}.gerente{background:#12283d;color:#7cb6ff}.operador{background:#123326;color:#63d99b}
+.ok{color:var(--green)}.err{color:#ff8a8d}.muted{color:var(--muted)}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);background:#12151c}
+.brand{font-weight:800}.brand span{color:var(--gold)}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 61px)}
+nav{background:#12151c;border-right:1px solid var(--line);padding:14px}nav button{display:block;width:100%;text-align:left;margin-bottom:6px;background:transparent;border:1px solid transparent}nav button.active{background:var(--panel2);border-color:var(--line);color:var(--gold)}
+main{padding:18px;max-width:1400px;width:100%}.hidden{display:none!important}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}.modal .card{width:min(560px,100%);max-height:90vh;overflow:auto}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}.login{width:min(430px,100%)}
+.logo{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#8a6d1d);display:flex;align-items:center;justify-content:center;font-weight:900;color:#151515;margin:0 auto 12px}
+.kpi{padding:16px}.kpi h3{margin:0;color:var(--muted);font-size:.85rem}.kpi p{margin:6px 0 0;font-size:1.6rem;font-weight:800}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.barber{cursor:pointer;border:2px solid var(--line);border-radius:16px;padding:16px;text-align:center;background:var(--panel)}
+.barber.sel{border-color:var(--gold);background:#241f10}
+.barber .av{font-size:44px}
+.hero{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);margin-bottom:16px}
+.hero img{width:100%;height:260px;object-fit:cover;display:block}
+.hero .overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25),rgba(0,0,0,.75));display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+.hero .logo{margin:0 0 10px}
+.stars{font-size:1.4rem;color:var(--gold);cursor:pointer;user-select:none}
+.stars span{opacity:.25}.stars span.on{opacity:1}
+.review{border:1px solid var(--line);border-radius:14px;padding:14px;background:#12151c}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.g3,.g4{grid-template-columns:repeat(2,1fr)}.filters{grid-template-columns:1fr}nav{display:flex;overflow:auto;gap:6px;border-right:0;border-bottom:1px solid var(--line)}nav button{white-space:nowrap;width:auto}}
+@media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="loginScreen" class="login-wrap">
+ <div class="card login">
+  <div class="logo">FB</div>
+  <h2 style="text-align:center;margin:0">Fidelis <span style="color:var(--gold)">BarberPro</span></h2>
+  <p class="muted" style="text-align:center">Sistema de gestão para barbearia e salão</p>
+  <form id="loginForm" novalidate>
+   <label>E-mail ou nome de usuário</label><input id="loginUser" autocomplete="username">
+   <label>Senha</label><input id="loginPass" type="password" autocomplete="current-password">
+   <p id="loginError" class="err hidden"></p>
+   <button class="primary" style="width:100%;margin-top:14px">Entrar</button>
+  </form>
+  <p class="muted" style="font-size:.8rem;margin-top:12px">Primeiro acesso: <b>carlos123@gmail.com</b> / <b>Fidelis@2026</b></p>
+  <button class="ghost" style="width:100%;margin-top:8px" onclick="resetSystem()">Zerar sistema e recriar dados de exemplo</button>
+ </div>
+</div>
+<div id="app" class="hidden">
+ <header class="topbar"><div class="brand">FIDELIS <span>BARBERPRO</span></div>
+ <div style="display:flex;align-items:center;gap:10px"><div style="text-align:right"><div id="userName" style="font-weight:700"></div><div id="userRole" class="muted" style="font-size:.8rem"></div></div><button class="ghost" onclick="logout()">Sair</button></div></header>
+ <div class="layout"><nav id="nav"></nav><main id="main"></main></div>
+</div>
+<div id="modalRoot"></div>
+<script>
+const DB_KEY='fidelis_barberpro_v9';
+const ADMIN_EMAIL='carlos123@gmail.com';
+const TEMP_PASS='Fidelis@2026';
+const FACADE_IMG='https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/a5fa703e-6033-5a7d-a840-cc0620465d24/ec3c5057-63a4-54ca-b6d2-76768b46ec76.jpg';
+function hash(s){let h=5381;for(let i=0;i<s.length;i++){h=(((h<<5)+h)+s.charCodeAt(i))>>>0}return 'h'+h.toString(16)}
+const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const money=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const fmtDate=d=>new Date(d).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function U(id,name,username,email,cpf,role,phone,position,hired){return{id,name,username,email,cpf,role,phone,position,hired,passwordHash:hash(TEMP_PASS),status:'ativo',mustChangePassword:true,createdAt:new Date().toISOString()}}
+function defaultDB(){
+ const d=n=>new Date(Date.now()-n*864e5).toISOString();
+ return{
+ users:[
+  U('u1','Carlos Administrador','carlos123',ADMIN_EMAIL,'123.456.789-00','admin','(11) 98888-0001','Administrador','2024-01-15'),
+  U('u2','Ana Souza','ana.gerente','ana.gerente@gmail.com','987.654.321-00','gerente','(11) 98888-0002','Gerente da unidade','2024-03-10'),
+  U('u3','Bruno Lima','bruno.barbeiro','bruno.barbeiro@gmail.com','456.789.123-00','operador','(11) 98888-0003','Barbeiro','2024-06-01'),
+  U('u4','Juliana Costa','juliana.recepcao','juliana.recepcao@gmail.com','321.654.987-00','operador','(11) 98888-0004','Recepção / Operadora','2025-02-18'),
+  U('u5','Rafael Mendes','rafael.barbeiro','rafael.mendes@gmail.com','789.123.456-00','operador','(11) 98888-0005','Barbeiro / Colorista','2025-05-05'),
+  U('u6','Diego Santos','diego.barbeiro','diego.santos@gmail.com','159.753.486-00','operador','(11) 98888-0006','Barbeiro','2025-08-11'),
+  U('u7','Felipe Nunes','felipe.barbeiro','felipe.nunes@gmail.com','357.159.486-00','operador','(11) 98888-0007','Barbeiro / Colorista','2025-09-22')
+ ],
+ clients:[
+  {id:'c1',name:'Marcos Almeida',cpf:'111.222.333-44',phone:'(11) 97777-1001',email:'marcos.almeida@email.com',birth:'1990-04-12',address:'Rua das Palmeiras, 120 — São Paulo/SP',preference:'Corte + Barba',notes:'Prefere máquina 2 nas laterais.',visits:14,active:true},
+  {id:'c2',name:'Pedro Henrique',cpf:'222.333.444-55',phone:'(11) 97777-1002',email:'pedro.henrique@email.com',birth:'1985-09-03',address:'Av. Brasil, 450 — São Paulo/SP',preference:'Corte masculino',notes:'Compra pomada modeladora com frequência.',visits:9,active:true},
+  {id:'c3',name:'Camila Rocha',cpf:'333.444.555-66',phone:'(11) 97777-1003',email:'camila.rocha@email.com',birth:'1993-11-27',address:'Rua Aurora, 78 — São Paulo/SP',preference:'Hidratação capilar',notes:'Cliente de coloração e tratamentos.',visits:6,active:true},
+  {id:'c4',name:'Cliente avulso',cpf:'',phone:'',email:'',birth:'',address:'',preference:'Corte masculino',notes:'Registro para atendimentos sem cadastro individual.',visits:2,active:true},
+  {id:'c5',name:'Haroldo',cpf:'444.555.666-77',phone:'(11) 97777-1004',email:'haroldo@email.com',birth:'1988-06-20',address:'Rua do Comércio, 300 — São Paulo/SP',preference:'Corte + Barba + Hidratação',notes:'Nas 6 visitas fez corte, barba e hidratação capilar.',visits:6,active:true}
+ ],
+ services:[
+  {id:'s1',name:'Corte masculino',price:35,category:'Serviço',active:true},
+  {id:'s2',name:'Barba',price:25,category:'Serviço',active:true},
+  {id:'s3',name:'Corte + Barba',price:55,category:'Serviço',active:true},
+  {id:'s4',name:'Hidratação capilar',price:60,category:'Serviço',active:true},
+  {id:'s7',name:'Corte degradê',price:40,category:'Serviço',active:true},
+  {id:'s8',name:'Corte infantil',price:30,category:'Serviço',active:true},
+  {id:'s9',name:'Pezinho / acabamento',price:15,category:'Serviço',active:true},
+  {id:'s10',name:'Sobrancelha masculina',price:15,category:'Serviço',active:true},
+  {id:'s11',name:'Design de sobrancelhas',price:35,category:'Serviço',active:true},
+  {id:'s12',name:'Luzes / mechas',price:180,category:'Serviço',active:true},
+  {id:'s13',name:'Platinado',price:250,category:'Serviço',active:true},
+  {id:'s14',name:'Coloração completa',price:150,category:'Serviço',active:true},
+  {id:'s15',name:'Relaxamento capilar',price:120,category:'Serviço',active:true},
+  {id:'s16',name:'Escova modelada',price:45,category:'Serviço',active:true},
+  {id:'s17',name:'Pigmentação de barba',price:40,category:'Serviço',active:true},
+  {id:'s18',name:'Toalha quente + barba',price:35,category:'Serviço',active:true},
+  {id:'s19',name:'Combo família (2 cortes + 1 infantil)',price:90,category:'Serviço',active:true},
+  {id:'s20',name:'Dia do noivo (corte, barba e hidratação)',price:180,category:'Serviço',active:true},
+  {id:'s5',name:'Pomada modeladora',price:30,category:'Produto',active:true},
+  {id:'s6',name:'Shampoo profissional',price:45,category:'Produto',active:true},
+  {id:'s21',name:'Pomada matte',price:35,category:'Produto',active:true},
+  {id:'s22',name:'Óleo para barba',price:40,category:'Produto',active:true},
+  {id:'s23',name:'Balm hidratante para barba',price:38,category:'Produto',active:true},
+  {id:'s24',name:'Condicionador',price:42,category:'Produto',active:true},
+  {id:'s25',name:'Tônico capilar',price:55,category:'Produto',active:true},
+  {id:'s26',name:'Cera modeladora',price:28,category:'Produto',active:true},
+  {id:'s27',name:'Perfume masculino 30ml',price:95,category:'Produto',active:true},
+  {id:'s28',name:'Kit barba (óleo + balm)',price:70,category:'Produto',active:true},
+  {id:'s29',name:'Máquina de corte profissional',price:320,category:'Produto',active:true},
+  {id:'s30',name:'Toalha descartável (pacote)',price:25,category:'Produto',active:true}
+ ],
+ sales:[
+  {id:'v1',serviceId:'s3',clientId:'c1',description:'Corte + Barba x1',qty:1,total:55,payment:'Pix',userId:'u3',date:d(6)},
+  {id:'v2',serviceId:'s1',clientId:'c4',description:'Corte masculino x2',qty:2,total:70,payment:'Cartão',userId:'u5',date:d(5)},
+  {id:'v3',serviceId:'s5',clientId:'c2',description:'Pomada modeladora x1',qty:1,total:30,payment:'Dinheiro',userId:'u4',date:d(4)},
+  {id:'v4',serviceId:'s4',clientId:'c3',description:'Hidratação capilar x1',qty:1,total:60,payment:'Pix',userId:'u2',date:d(3)},
+  {id:'v5',serviceId:'s3',clientId:'c5',description:'Corte + Barba + Hidratação x1',qty:1,total:115,payment:'Pix',userId:'u3',date:d(42)},
+  {id:'v6',serviceId:'s3',clientId:'c5',description:'Corte + Barba + Hidratação x1',qty:1,total:115,payment:'Pix',userId:'u3',date:d(35)},
+  {id:'v7',serviceId:'s3',clientId:'c5',description:'Corte + Barba + Hidratação x1',qty:1,total:115,payment:'Cartão',userId:'u5',date:d(28)},
+  {id:'v8',serviceId:'s3',clientId:'c5',description:'Corte + Barba + Hidratação x1',qty:1,total:115,payment:'Pix',userId:'u6',date:d(21)},
+  {id:'v9',serviceId:'s3',clientId:'c5',description:'Corte + Barba + Hidratação x1',qty:1,total:115,payment:'Dinheiro',userId:'u7',date:d(14)},
+  {id:'v10',serviceId:'s3',clientId:'c5',description:'Corte + Barba + Hidratação x1',qty:1,total:115,payment:'Pix',userId:'u3',date:d(7)}
+ ],
+ expenses:[
+  {id:'e1',description:'Compra de pomadas e shampoos',category:'Produtos',value:180,userId:'u2',date:d(4)},
+  {id:'e2',description:'Energia elétrica',category:'Energia',value:250,userId:'u1',date:d(3)},
+  {id:'e3',description:'Manutenção de máquinas de corte',category:'Outros',value:90,userId:'u2',date:d(1)}
+ ],
+ appointments:[
+  {id:'a1',clientId:'c1',barberId:'u3',serviceIds:['s3'],date:new Date(Date.now()+864e5).toISOString().slice(0,10),time:'14:00',status:'agendado',notes:''}
+ ],
+ feedback:[
+  {id:'f1',clientId:'c1',rating:5,comment:'Atendimento excelente e corte impecável. Voltarei sempre!',date:d(3)},
+  {id:'f2',clientId:'c3',rating:4,comment:'Hidratação maravilhosa, só demorou um pouco para ser atendida.',date:d(2)},
+  {id:'f3',clientId:'c5',rating:5,comment:'Ambiente ótimo, barbeiros muito profissionais.',date:d(1)}
+ ],
+ cashSessions:[],audit:[]
+}}
+function load(){try{const d=JSON.parse(localStorage.getItem(DB_KEY));return d&&d.users&&d.users.length?d:defaultDB()}catch(e){return defaultDB()}}
+function save(){localStorage.setItem(DB_KEY,JSON.stringify(db))}
+let db=load();
+let currentUser=null;
+const PERMISSIONS={admin:['dashboard','users','clients','agenda','services','sales','expenses','cash','reports','feedback'],gerente:['dashboard','clients','agenda','services','sales','expenses','cash','reports','feedback'],operador:['dashboard','clients','agenda','sales','cash','feedback']};
+function serverAuthorize(p){if(!currentUser)return{ok:false,error:'Sessão inválida.'};if(currentUser.status!=='ativo')return{ok:false,error:'Conta bloqueada ou desativada.'};if(!PERMISSIONS[currentUser.role]?.includes(p))return{ok:false,error:'Acesso negado para seu perfil.'};return{ok:true}}
+function requirePermission(p){const r=serverAuthorize(p);if(!r.ok){alert(r.error);return false}return true}
+function audit(a,d){db.audit.unshift({id:uid('a'),user:currentUser?.name||'Sistema',action:a,detail:d,at:new Date().toISOString()});db.audit=db.audit.slice(0,300);save()}
+function resetSystem(){if(!confirm('Apagar os dados salvos neste navegador e recriar os dados de exemplo?'))return;localStorage.removeItem(DB_KEY);db=defaultDB();save();document.getElementById('loginError').classList.add('hidden');alert('Dados de exemplo recriados.\n\nAdministrador: carlos123@gmail.com\nSenha provisória: Fidelis@2026')}
+document.getElementById('loginForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const id=document.getElementById('loginUser').value.trim().toLowerCase();
+ const pass=document.getElementById('loginPass').value;
+ const err=document.getElementById('loginError');
+ const user=db.users.find(u=>u.email.toLowerCase()===id||u.username.toLowerCase()===id);
+ if(user&&id===ADMIN_EMAIL&&pass===TEMP_PASS&&user.passwordHash===hash(TEMP_PASS)){user.role='admin';user.status='ativo'}
+ if(!user||user.passwordHash!==hash(pass)){err.textContent='E-mail/usuário ou senha inválidos.';err.classList.remove('hidden');return}
+ if(user.status!=='ativo'){err.textContent='Conta bloqueada ou desativada.';err.classList.remove('hidden');return}
+ currentUser=user;audit('login','Acesso realizado');save();
+ if(user.mustChangePassword){openChangePassword(true);return}
+ enterApp();
+});
+function logout(){audit('logout','Sessão encerrada');currentUser=null;document.getElementById('app').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');document.getElementById('loginPass').value=''}
+function enterApp(){document.getElementById('loginScreen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');document.getElementById('userName').textContent=currentUser.name;document.getElementById('userRole').textContent=currentUser.role==='admin'?'Administrador':currentUser.role==='gerente'?'Gerente':'Operador';buildNav();go('dashboard')}
+const NAV=[{id:'dashboard',label:'Painel'},{id:'users',label:'Usuários'},{id:'clients',label:'Clientes'},{id:'agenda',label:'Agendar'},{id:'services',label:'Serviços / Produtos'},{id:'sales',label:'Vendas'},{id:'expenses',label:'Despesas'},{id:'cash',label:'Caixa'},{id:'reports',label:'Relatórios'},{id:'feedback',label:'Feedback'}];
+function buildNav(){document.getElementById('nav').innerHTML=NAV.filter(n=>PERMISSIONS[currentUser.role].includes(n.id)).map(n=>`<button data-page="${n.id}" onclick="go('${n.id}')">${n.label}</button>`).join('')}
+function go(p){if(!requirePermission(p))return;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));({dashboard:viewDashboard,users:viewUsers,clients:viewClients,agenda:viewAgenda,services:viewServices,sales:viewSales,expenses:viewExpenses,cash:viewCash,reports:viewReports,feedback:viewFeedback})[p]()}
+function modal(t,b,onS){document.getElementById('modalRoot').innerHTML=`<div class="modal"><div class="card"><div style="display:flex;justify-content:space-between"><h3 style="margin:0">${t}</h3><button class="ghost" onclick="closeModal()">✕</button></div><form id="modalForm" novalidate>${b}<p id="modalError" class="err hidden"></p><div style="display:flex;gap:10px;margin-top:16px"><button class="primary" type="submit">Salvar</button><button type="button" class="ghost" onclick="closeModal()">Cancelar</button></div></form></div></div>`;document.getElementById('modalForm').addEventListener('submit',e=>{e.preventDefault();onS()})}
+function closeModal(){document.getElementById('modalRoot').innerHTML=''}
+function formError(m){const e=document.getElementById('modalError');e.textContent=m;e.classList.remove('hidden')}
+function validEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)}
+function validCpf(v){return /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(v)}
+function openChangePassword(force){modal(force?'Redefinição obrigatória de senha':'Alterar senha',`${force?'<p class="muted">Defina uma nova senha antes de continuar. Este pedido aparecerá apenas na primeira entrada com a senha provisória.</p>':''}<label>Senha atual</label><input type="password" id="cpCurrent"><label>Nova senha</label><input type="password" id="cpNew"><label>Confirmar nova senha</label><input type="password" id="cpConfirm"><p class="muted">Mínimo 8 caracteres, com maiúscula, minúscula e número.</p>`,()=>{const u=db.users.find(x=>x.id===currentUser.id);const c=document.getElementById('cpCurrent').value,n=document.getElementById('cpNew').value,f=document.getElementById('cpConfirm').value;if(u.passwordHash!==hash(c))return formError('Senha atual incorreta.');if(n.length<8||!/[A-Z]/.test(n)||!/[a-z]/.test(n)||!/\d/.test(n))return formError('A nova senha não atende aos requisitos.');if(n!==f)return formError('As senhas não coincidem.');u.passwordHash=hash(n);u.mustChangePassword=false;save();audit('password_change','Senha alterada');closeModal();if(force)enterApp();else alert('Senha atualizada.')})}
+
+function viewDashboard(){const t=new Date().toDateString();const st=db.sales.filter(s=>new Date(s.date).toDateString()===t),et=db.expenses.filter(e=>new Date(e.date).toDateString()===t);const r=st.reduce((a,s)=>a+s.total,0),x=et.reduce((a,e)=>a+e.value,0),o=db.cashSessions.find(c=>!c.closedAt);const avg=db.feedback.length?(db.feedback.reduce((a,f)=>a+f.rating,0)/db.feedback.length).toFixed(1):'—';document.getElementById('main').innerHTML=`<h2>Painel</h2><div class="grid g4"><div class="card kpi"><h3>Receita hoje</h3><p class="ok">${money(r)}</p></div><div class="card kpi"><h3>Despesas hoje</h3><p style="color:#ff8a8d">${money(x)}</p></div><div class="card kpi"><h3>Saldo do dia</h3><p>${money(r-x)}</p></div><div class="card kpi"><h3>Avaliação média</h3><p class="ok">${avg} ★</p></div></div><div class="grid g2" style="margin-top:14px"><div class="card"><h3>Equipe</h3>${db.users.map(u=>`<p>${esc(u.name)} — <span class="muted">${esc(u.position)}</span><br><span class="muted">${esc(u.email)} • ${esc(u.cpf)}</span></p>`).join('')}</div><div class="card"><h3>Próximos agendamentos</h3>${db.appointments.filter(a=>a.status==='agendado').slice(0,5).map(a=>{const c=db.clients.find(x=>x.id===a.clientId),b=db.users.find(x=>x.id===a.barberId);return`<p>${esc(c?.name||'—')} com ${esc(b?.name||'—')}<br><span class="muted">${fmtDate(a.date+'T12:00')} às ${a.time}</span></p>`}).join('')||'<p class="muted">Nenhum agendamento.</p>'}</div></div>`}
+
+function viewUsers(){if(!requirePermission('users'))return;document.getElementById('main').innerHTML=`<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px"><h2>Usuários</h2>${currentUser.role==='admin'?'<button class="primary" onclick="openUser()">+ Novo usuário</button>':''}</div><div class="filters"><input id="uSearch" placeholder="Pesquisar" oninput="renderUsers()"><select id="uRole" onchange="renderUsers()"><option value="">Todos os perfis</option><option value="admin">Administrador</option><option value="gerente">Gerente</option><option value="operador">Operador</option></select><select id="uStatus" onchange="renderUsers()"><option value="">Todos</option><option value="ativo">Ativo</option><option value="bloqueado">Bloqueado</option><option value="desativado">Desativado</option></select></div><div class="table-wrap"><table><thead><tr><th>Nome</th><th>E-mail</th><th>CPF</th><th>Cargo</th><th>Perfil</th><th>Status</th><th>Ações</th></tr></thead><tbody id="usersBody"></tbody></table></div>`;renderUsers()}
+function renderUsers(){if(!requirePermission('users'))return;const q=document.getElementById('uSearch').value.toLowerCase(),r=document.getElementById('uRole').value,s=document.getElementById('uStatus').value;document.getElementById('usersBody').innerHTML=db.users.filter(u=>(!q||[u.name,u.email,u.username,u.cpf,u.phone].join(' ').toLowerCase().includes(q))&&(!r||u.role===r)&&(!s||u.status===s)).map(u=>`<tr><td>${esc(u.name)}<br><span class="muted">@${esc(u.username)}</span></td><td>${esc(u.email)}<br><span class="muted">${esc(u.phone)}</span></td><td>${esc(u.cpf)}</td><td>${esc(u.position)}<br><span class="muted">Desde ${esc(u.hired)}</span></td><td><span class="badge ${u.role}">${u.role==='admin'?'Administrador':u.role==='gerente'?'Gerente':'Operador'}</span></td><td class="${u.status==='ativo'?'ok':'err'}">${u.status}</td><td>${currentUser.role==='admin'?`<button class="ghost" onclick="openUser('${u.id}')">Editar</button><button class="ghost" onclick="resetPassword('${u.id}')">Redefinir senha</button><button class="ghost" onclick="toggleUser('${u.id}')">${u.status==='ativo'?'Bloquear':'Desbloquear'}</button><button class="danger" onclick="deleteUser('${u.id}')">Excluir</button>`:'<span class="muted">Somente administrador</span>'}</td></tr>`).join('')}
+function openUser(id){if(!requirePermission('users'))return;const u=id?db.users.find(x=>x.id===id):{name:'',username:'',email:'',cpf:'',phone:'',position:'',hired:'',role:'operador'};modal(id?'Editar usuário':'Cadastrar usuário',`<label>Nome completo</label><input id="fName" value="${esc(u.name)}"><div class="grid g2"><div><label>Nome de usuário</label><input id="fUsername" value="${esc(u.username)}"></div><div><label>CPF</label><input id="fCpf" placeholder="000.000.000-00" value="${esc(u.cpf)}"></div></div><div class="grid g2"><div><label>E-mail</label><input id="fEmail" value="${esc(u.email)}"></div><div><label>Telefone</label><input id="fPhone" value="${esc(u.phone)}"></div></div><div class="grid g2"><div><label>Cargo</label><input id="fPosition" value="${esc(u.position)}"></div><div><label>Data de admissão</label><input id="fHired" type="date" value="${esc(u.hired)}"></div></div><label>Perfil</label><select id="fRole"><option value="admin" ${u.role==='admin'?'selected':''}>Administrador</option><option value="gerente" ${u.role==='gerente'?'selected':''}>Gerente</option><option value="operador" ${u.role==='operador'?'selected':''}>Operador</option></select>${id?'':'<label>Senha provisória</label><input id="fPass" value="Fidelis@2026">'}`,()=>{const n=document.getElementById('fName').value.trim(),us=document.getElementById('fUsername').value.trim().toLowerCase(),cpf=document.getElementById('fCpf').value.trim(),em=document.getElementById('fEmail').value.trim().toLowerCase(),ph=document.getElementById('fPhone').value.trim(),po=document.getElementById('fPosition').value.trim(),hi=document.getElementById('fHired').value,ro=document.getElementById('fRole').value;if(n.length<3)return formError('Informe o nome completo.');if(us.length<4)return formError('Usuário deve ter 4+ caracteres.');if(!validCpf(cpf))return formError('CPF inválido. Use o formato 000.000.000-00.');if(!validEmail(em))return formError('E-mail inválido.');if(db.users.some(x=>x.id!==id&&(x.email===em||x.username===us||x.cpf===cpf)))return formError('E-mail, usuário ou CPF já cadastrado.');if(id)Object.assign(db.users.find(x=>x.id===id),{name:n,username:us,cpf,email:em,phone:ph,position:po,hired:hi,role:ro});else{const p=document.getElementById('fPass').value;if(p.length<8)return formError('Senha provisória muito curta.');db.users.push({id:uid('u'),name:n,username:us,cpf,email:em,phone:ph,position:po,hired:hi,role:ro,passwordHash:hash(p),status:'ativo',mustChangePassword:true,createdAt:new Date().toISOString()})}save();closeModal();renderUsers()})}
+function toggleUser(id){if(!requirePermission('users'))return;const u=db.users.find(x=>x.id===id);if(u.id===currentUser.id)return alert('Não é possível bloquear a própria conta.');u.status=u.status==='ativo'?'bloqueado':'ativo';save();renderUsers()}
+function deleteUser(id){if(!requirePermission('users'))return;const u=db.users.find(x=>x.id===id);if(u.id===currentUser.id)return alert('Não é possível excluir a própria conta.');if(confirm('Excluir '+u.name+'?')){db.users=db.users.filter(x=>x.id!==id);save();renderUsers()}}
+function resetPassword(id){if(!requirePermission('users'))return;const u=db.users.find(x=>x.id===id);const t='Fidelis@'+Math.floor(1000+Math.random()*9000);u.passwordHash=hash(t);u.mustChangePassword=true;u.status='ativo';save();alert('Nova senha provisória para '+u.name+':\n\n'+t)}
+
+/* ---------- CLIENTES ---------- */
+function viewClients(){if(!requirePermission('clients'))return;document.getElementById('main').innerHTML=`<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px"><h2>Catálogo de clientes</h2><button class="primary" onclick="openClient()">+ Novo cliente</button></div><div class="filters"><input id="cSearch" placeholder="Pesquisar por nome, CPF, telefone ou e-mail" oninput="renderClients()"><select id="cStatus" onchange="renderClients()"><option value="">Todos</option><option value="true">Ativos</option><option value="false">Inativos</option></select><select id="cPref" onchange="renderClients()"><option value="">Todas as preferências</option><option>Corte masculino</option><option>Barba</option><option>Corte + Barba</option><option>Hidratação capilar</option><option>Corte + Barba + Hidratação</option></select></div><div class="grid" id="clientsGrid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))"></div>`;renderClients()}
+function renderClients(){if(!requirePermission('clients'))return;const q=document.getElementById('cSearch').value.toLowerCase(),st=document.getElementById('cStatus').value,pf=document.getElementById('cPref').value;
+const list=db.clients.filter(c=>(!q||[c.name,c.cpf,c.phone,c.email].join(' ').toLowerCase().includes(q))&&(!st||String(c.active)===st)&&(!pf||c.preference===pf));
+document.getElementById('clientsGrid').innerHTML=list.map(c=>{
+ const sales=db.sales.filter(s=>s.clientId===c.id);
+ const total=sales.reduce((a,s)=>a+s.total,0);
+ const ini=c.name.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
+ return`<div class="card"><div style="display:flex;gap:12px;align-items:center"><div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#8a6d1d);display:flex;align-items:center;justify-content:center;font-weight:900;color:#151515">${ini}</div><div><h3 style="margin:0">${esc(c.name)}</h3><span class="badge ${c.active?'operador':'admin'}">${c.active?'Ativo':'Inativo'}</span></div></div>
+ <p class="muted" style="margin-top:10px">CPF: ${esc(c.cpf||'—')}</p>
+ <p>Telefone: ${esc(c.phone||'—')}</p>
+ <p>E-mail: ${esc(c.email||'—')}</p>
+ <p class="muted">${esc(c.address||'Endereço não informado')}</p>
+ <p>Serviço preferido: <b>${esc(c.preference||'—')}</b></p>
+ <p>Visitas: <b>${c.visits}</b> • Total gasto: <b class="ok">${money(total)}</b></p>
+ <p class="muted">${esc(c.notes||'')}</p>
+ <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="ghost" onclick="openClient('${c.id}')">Editar</button><button class="ghost" onclick="toggleClient('${c.id}')">${c.active?'Desativar':'Ativar'}</button><button class="danger" onclick="deleteClient('${c.id}')">Excluir</button></div></div>`}).join('')||'<p class="muted">Nenhum cliente encontrado.</p>'}
+function openClient(id){if(!requirePermission('clients'))return;const c=id?db.clients.find(x=>x.id===id):{name:'',cpf:'',phone:'',email:'',birth:'',address:'',preference:'Corte masculino',notes:'',active:true};modal(id?'Editar cliente':'Cadastrar cliente',`<label>Nome completo</label><input id="clName" value="${esc(c.name)}"><div class="grid g2"><div><label>CPF</label><input id="clCpf" placeholder="000.000.000-00" value="${esc(c.cpf)}"></div><div><label>Telefone</label><input id="clPhone" value="${esc(c.phone)}"></div></div><div class="grid g2"><div><label>E-mail</label><input id="clEmail" value="${esc(c.email)}"></div><div><label>Data de nascimento</label><input id="clBirth" type="date" value="${esc(c.birth)}"></div></div><label>Endereço</label><input id="clAddress" value="${esc(c.address)}"><label>Serviço preferido</label><select id="clPref"><option ${c.preference==='Corte masculino'?'selected':''}>Corte masculino</option><option ${c.preference==='Barba'?'selected':''}>Barba</option><option ${c.preference==='Corte + Barba'?'selected':''}>Corte + Barba</option><option ${c.preference==='Hidratação capilar'?'selected':''}>Hidratação capilar</option><option ${c.preference==='Corte + Barba + Hidratação'?'selected':''}>Corte + Barba + Hidratação</option></select><label>Observações</label><textarea id="clNotes" rows="2">${esc(c.notes)}</textarea>`,()=>{
+ const n=document.getElementById('clName').value.trim(),cpf=document.getElementById('clCpf').value.trim(),ph=document.getElementById('clPhone').value.trim(),em=document.getElementById('clEmail').value.trim(),bi=document.getElementById('clBirth').value,ad=document.getElementById('clAddress').value.trim(),pf=document.getElementById('clPref').value,no=document.getElementById('clNotes').value.trim();
+ if(n.length<3)return formError('Informe o nome do cliente.');
+ if(cpf&&!validCpf(cpf))return formError('CPF inválido. Use o formato 000.000.000-00.');
+ if(em&&!validEmail(em))return formError('E-mail inválido.');
+ if(cpf&&db.clients.some(x=>x.id!==id&&x.cpf===cpf))return formError('CPF já cadastrado.');
+ if(id){const c=db.clients.find(x=>x.id===id);Object.assign(c,{name:n,cpf,phone:ph,email:em,birth:bi,address:ad,preference:pf,notes:no})}
+ else db.clients.push({id:uid('c'),name:n,cpf,phone:ph,email:em,birth:bi,address:ad,preference:pf,notes:no,visits:0,active:true});
+ save();audit('client_save',n);closeModal();renderClients();
+})}
+function toggleClient(id){if(!requirePermission('clients'))return;const c=db.clients.find(x=>x.id===id);c.active=!c.active;save();renderClients()}
+function deleteClient(id){if(!requirePermission('clients'))return;const c=db.clients.find(x=>x.id===id);if(db.sales.some(s=>s.clientId===id))return alert('Este cliente possui vendas vinculadas. Desative em vez de excluir para manter o histórico.');if(confirm('Excluir '+c.name+'?')){db.clients=db.clients.filter(x=>x.id!==id);save();renderClients()}}
+
+/* ---------- AGENDAR ---------- */
+const BARBER_AVATARS={'u3':'🧔','u5':'👨‍🦱','u6':'👨🏻','u7':'🧑🏽','u2':'👩🏻‍💼','u4':'👩🏽‍💼','u1':'👨‍💼'};
+let selBarber=null;
+function viewAgenda(){if(!requirePermission('agenda'))return;
+ const barbers=db.users.filter(u=>u.role==='operador'&&u.position.toLowerCase().includes('barbeiro'));
+ document.getElementById('main').innerHTML=`<h2>Agendar atendimento</h2>
+ <h3>1. Escolha o barbeiro</h3>
+ <div class="grid g4" id="barberGrid">${barbers.map(b=>`<div class="barber ${selBarber===b.id?'sel':''}" onclick="selectBarber('${b.id}')"><div class="av">${BARBER_AVATARS[b.id]||'🧑'}</div><h4 style="margin:8px 0 2px">${esc(b.name)}</h4><p class="muted" style="margin:0">${esc(b.position)}</p></div>`).join('')}</div>
+ <div id="agendaForm"></div>
+ <h3 style="margin-top:20px">Agendamentos</h3>
+ <div class="table-wrap"><table><thead><tr><th>Data</th><th>Horário</th><th>Cliente</th><th>Barbeiro</th><th>Serviços</th><th>Status</th><th>Ações</th></tr></thead><tbody id="agendaBody"></tbody></table></div>`;
+ renderAgendaForm();renderAgenda();
+}
+function selectBarber(id){selBarber=id;viewAgenda()}
+function renderAgendaForm(){
+ const f=document.getElementById('agendaForm');
+ if(!selBarber){f.innerHTML='<p class="muted" style="margin-top:14px">Selecione um barbeiro acima para ver os serviços e agendar.</p>';return}
+ const b=db.users.find(x=>x.id===selBarber);
+ const services=db.services.filter(s=>s.active&&s.category==='Serviço');
+ f.innerHTML=`<div class="card" style="margin-top:14px"><h3>2. Serviços de ${esc(b.name)}</h3>
+ <div class="grid g2">${services.map(s=>`<label style="display:flex;gap:8px;align-items:center;background:#12151c;border:1px solid var(--line);border-radius:10px;padding:10px"><input type="checkbox" class="agSvc" value="${s.id}" style="width:auto"> ${esc(s.name)} — <b>${money(s.price)}</b></label>`).join('')}</div>
+ <div class="grid g3" style="margin-top:12px"><div><label>Cliente</label><select id="agClient">${db.clients.filter(c=>c.active).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
+ <div><label>Data</label><input id="agDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+ <div><label>Horário</label><input id="agTime" type="time" value="10:00"></div></div>
+ <label>Observações</label><input id="agNotes">
+ <button class="primary" style="margin-top:12px" onclick="createAppointment()">Confirmar agendamento</button></div>`;
+}
+function createAppointment(){
+ if(!requirePermission('agenda'))return;
+ const svcs=[...document.querySelectorAll('.agSvc:checked')].map(x=>x.value);
+ const cid=document.getElementById('agClient').value,dt=document.getElementById('agDate').value,tm=document.getElementById('agTime').value,no=document.getElementById('agNotes').value;
+ if(!svcs.length)return alert('Selecione pelo menos um serviço.');
+ if(!dt||!tm)return alert('Informe data e horário.');
+ db.appointments.unshift({id:uid('ag'),clientId:cid,barberId:selBarber,serviceIds:svcs,date:dt,time:tm,status:'agendado',notes:no});
+ save();audit('appointment_create','Agendamento criado');selBarber=null;viewAgenda();
+}
+function renderAgenda(){
+ document.getElementById('agendaBody').innerHTML=db.appointments.map(a=>{
+  const c=db.clients.find(x=>x.id===a.clientId),b=db.users.find(x=>x.id===a.barberId);
+  const sv=a.serviceIds.map(id=>db.services.find(s=>s.id===id)?.name).filter(Boolean).join(', ');
+  return`<tr><td>${fmtDate(a.date+'T12:00')}</td><td>${a.time}</td><td>${esc(c?.name||'—')}</td><td>${esc(b?.name||'—')}</td><td>${esc(sv)}</td><td><span class="badge ${a.status==='agendado'?'operador':'admin'}">${a.status}</span></td><td>${a.status==='agendado'?`<button class="ghost" onclick="cancelAppointment('${a.id}')">Cancelar</button>`:''}</td></tr>`}).join('')||'<tr><td colspan="7" class="muted">Nenhum agendamento.</td></tr>';
+}
+function cancelAppointment(id){if(!requirePermission('agenda'))return;const a=db.appointments.find(x=>x.id===id);a.status='cancelado';save();audit('appointment_cancel','Agendamento cancelado');viewAgenda()}
+
+function viewServices(){if(!requirePermission('services'))return;document.getElementById('main').innerHTML=`<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px"><h2>Serviços e produtos</h2><button class="primary" onclick="openService()">+ Novo item</button></div><div class="filters"><input id="sSearch" placeholder="Pesquisar" oninput="renderServices()"><select id="sType" onchange="renderServices()"><option value="">Todos</option><option>Serviço</option><option>Produto</option></select><select id="sActive" onchange="renderServices()"><option value="">Todos</option><option value="true">Ativos</option><option value="false">Inativos</option></select></div><div class="table-wrap"><table><thead><tr><th>Nome</th><th>Tipo</th><th>Preço</th><th>Status</th><th>Ações</th></tr></thead><tbody id="servicesBody"></tbody></table></div>`;renderServices()}
+function renderServices(){if(!requirePermission('services'))return;const q=document.getElementById('sSearch').value.toLowerCase(),t=document.getElementById('sType').value,a=document.getElementById('sActive').value;document.getElementById('servicesBody').innerHTML=db.services.filter(s=>(!q||s.name.toLowerCase().includes(q))&&(!t||s.category===t)&&(!a||String(s.active)===a)).map(s=>`<tr><td>${esc(s.name)}</td><td>${s.category}</td><td>${money(s.price)}</td><td class="${s.active?'ok':'err'}">${s.active?'Ativo':'Inativo'}</td><td><button class="ghost" onclick="openService('${s.id}')">Editar</button><button class="ghost" onclick="toggleService('${s.id}')">${s.active?'Desativar':'Ativar'}</button><button class="danger" onclick="deleteService('${s.id}')">Excluir</button></td></tr>`).join('')}
+function openService(id){if(!requirePermission('services'))return;const s=id?db.services.find(x=>x.id===id):{name:'',price:'',category:'Serviço'};modal(id?'Editar item':'Cadastrar item',`<label>Nome</label><input id="svName" value="${esc(s.name)}"><label>Tipo</label><select id="svType"><option ${s.category==='Serviço'?'selected':''}>Serviço</option><option ${s.category==='Produto'?'selected':''}>Produto</option></select><label>Preço</label><input id="svPrice" type="number" min="0" step="0.01" value="${s.price}">`,()=>{const n=document.getElementById('svName').value.trim(),p=parseFloat(document.getElementById('svPrice').value),c=document.getElementById('svType').value;if(n.length<2||!(p>0))return formError('Preencha nome e preço válidos.');if(id)Object.assign(db.services.find(x=>x.id===id),{name:n,price:p,category:c});else db.services.push({id:uid('s'),name:n,price:p,category:c,active:true});save();closeModal();renderServices()})}
+function toggleService(id){if(!requirePermission('services'))return;const s=db.services.find(x=>x.id===id);s.active=!s.active;save();renderServices()}
+function deleteService(id){if(!requirePermission('services'))return;if(confirm('Excluir item?')){db.services=db.services.filter(x=>x.id!==id);save();renderServices()}}
+
+function viewSales(){if(!requirePermission('sales'))return;const items=db.services.filter(s=>s.active);document.getElementById('main').innerHTML=`<h2>Vendas e recebimentos</h2><div class="card"><div class="grid g3"><div><label>Cliente</label><select id="saleClient">${db.clients.filter(c=>c.active).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div><div><label>Item</label><select id="saleItem">${items.map(s=>`<option value="${s.id}">${esc(s.name)} — ${money(s.price)}</option>`).join('')}</select></div><div><label>Quantidade</label><input id="saleQty" type="number" min="1" value="1"></div></div><div class="grid g2" style="margin-top:10px"><div><label>Pagamento</label><select id="salePay"><option>Dinheiro</option><option>Pix</option><option>Cartão</option></select></div><div style="align-self:end"><button class="primary" style="width:100%" onclick="addSale()">Registrar recebimento</button></div></div></div><div class="filters" style="margin-top:16px"><input id="saleSearch" placeholder="Pesquisar" oninput="renderSales()"><input id="saleFrom" type="date" onchange="renderSales()"><input id="saleTo" type="date" onchange="renderSales()"></div><div class="table-wrap"><table><thead><tr><th>Data</th><th>Cliente</th><th>Descrição</th><th>Funcionário</th><th>Pagamento</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="salesBody"></tbody></table></div>`;renderSales()}
+function addSale(){if(!requirePermission('sales'))return;const s=db.services.find(x=>x.id===document.getElementById('saleItem').value),c=db.clients.find(x=>x.id===document.getElementById('saleClient').value),q=parseInt(document.getElementById('saleQty').value);if(!s||!c||!(q>0))return alert('Selecione cliente, item e quantidade válidos.');db.sales.unshift({id:uid('v'),serviceId:s.id,clientId:c.id,description:`${s.name} x${q}`,qty:q,total:s.price*q,payment:document.getElementById('salePay').value,userId:currentUser.id,date:new Date().toISOString()});c.visits=(c.visits||0)+1;save();audit('sale_create',`${s.name} para ${c.name}`);viewSales()}
+function renderSales(){if(!requirePermission('sales'))return;const q=document.getElementById('saleSearch').value.toLowerCase(),f=document.getElementById('saleFrom').value,t=document.getElementById('saleTo').value;document.getElementById('salesBody').innerHTML=db.sales.filter(s=>{const d=new Date(s.date).toISOString().slice(0,10);const c=db.clients.find(x=>x.id===s.clientId);return(!q||[s.description,c?.name].join(' ').toLowerCase().includes(q))&&(!f||d>=f)&&(!t||d<=t)}).map(s=>{const c=db.clients.find(x=>x.id===s.clientId),u=db.users.find(x=>x.id===s.userId);return`<tr><td>${fmtDate(s.date)}</td><td>${esc(c?.name||'—')}</td><td>${esc(s.description)}</td><td>${esc(u?.name||'—')}</td><td>${s.payment}</td><td class="ok">${money(s.total)}</td><td><button class="danger" onclick="deleteSale('${s.id}')">Excluir</button></td></tr>`}).join('')}
+function deleteSale(id){if(!requirePermission('sales'))return;if(confirm('Excluir venda?')){const s=db.sales.find(x=>x.id===id);const c=db.clients.find(x=>x.id===s.clientId);if(c)c.visits=Math.max(0,(c.visits||1)-1);db.sales=db.sales.filter(x=>x.id!==id);save();renderSales()}}
+
+function viewExpenses(){if(!requirePermission('expenses'))return;document.getElementById('main').innerHTML=`<h2>Despesas</h2><div class="card"><div class="grid g3"><div><label>Descrição</label><input id="expDesc"></div><div><label>Categoria</label><select id="expCat"><option>Aluguel</option><option>Produtos</option><option>Salários</option><option>Energia</option><option>Marketing</option><option>Outros</option></select></div><div><label>Valor</label><input id="expValue" type="number" min="0.01" step="0.01"></div></div><button class="primary" style="margin-top:12px" onclick="addExpense()">Registrar</button></div><div class="filters" style="margin-top:16px"><input id="expSearch" placeholder="Pesquisar" oninput="renderExpenses()"><input id="expFrom" type="date" onchange="renderExpenses()"><input id="expTo" type="date" onchange="renderExpenses()"></div><div class="table-wrap"><table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="expensesBody"></tbody></table></div>`;renderExpenses()}
+function addExpense(){if(!requirePermission('expenses'))return;const d=document.getElementById('expDesc').value.trim(),v=parseFloat(document.getElementById('expValue').value),c=document.getElementById('expCat').value;if(d.length<3||!(v>0))return alert('Preencha descrição e valor.');db.expenses.unshift({id:uid('e'),description:d,category:c,value:v,userId:currentUser.id,date:new Date().toISOString()});save();viewExpenses()}
+function renderExpenses(){if(!requirePermission('expenses'))return;const q=document.getElementById('expSearch').value.toLowerCase(),f=document.getElementById('expFrom').value,t=document.getElementById('expTo').value;document.getElementById('expensesBody').innerHTML=db.expenses.filter(e=>{const d=new Date(e.date).toISOString().slice(0,10);return(!q||e.description.toLowerCase().includes(q))&&(!f||d>=f)&&(!t||d<=t)}).map(e=>`<tr><td>${fmtDate(e.date)}</td><td>${esc(e.description)}</td><td>${e.category}</td><td style="color:#ff8a8d">${money(e.value)}</td><td><button class="danger" onclick="deleteExpense('${e.id}')">Excluir</button></td></tr>`).join('')}
+function deleteExpense(id){if(!requirePermission('expenses'))return;if(confirm('Excluir despesa?')){db.expenses=db.expenses.filter(x=>x.id!==id);save();renderExpenses()}}
+
+function viewCash(){if(!requirePermission('cash'))return;const o=db.cashSessions.find(c=>!c.closedAt);document.getElementById('main').innerHTML=`<h2>Caixa</h2><div class="card">${o?`<p>Aberto em <b>${fmtDate(o.openedAt)}</b> — saldo inicial <b>${money(o.openingBalance)}</b>.</p><button class="primary" onclick="closeCash()">Fechar caixa</button>`:`<div class="grid g2"><div><label>Saldo inicial</label><input id="cashStart" type="number" min="0" step="0.01" value="0"></div><div style="align-self:end"><button class="primary" onclick="openCashSession()">Abrir caixa</button></div></div>`}</div><h3 style="margin-top:18px">Histórico</h3><div class="table-wrap"><table><thead><tr><th>Abertura</th><th>Fechamento</th><th>Inicial</th><th>Entradas</th><th>Saídas</th><th>Final</th></tr></thead><tbody>${db.cashSessions.slice().reverse().map(c=>`<tr><td>${fmtDate(c.openedAt)}</td><td>${c.closedAt?fmtDate(c.closedAt):'<span class="ok">Aberto</span>'}</td><td>${money(c.openingBalance)}</td><td class="ok">${money(c.salesTotal)}</td><td style="color:#ff8a8d">${money(c.expensesTotal)}</td><td><b>${money(c.finalBalance??(c.openingBalance+c.salesTotal-c.expensesTotal))}</b></td></tr>`).join('')||'<tr><td colspan="6" class="muted">Nenhum caixa.</td></tr>'}</tbody></table></div>`}
+function openCashSession(){if(!requirePermission('cash'))return;const v=parseFloat(document.getElementById('cashStart').value)||0;db.cashSessions.push({id:uid('c'),openingBalance:v,openedAt:new Date().toISOString(),salesTotal:0,expensesTotal:0});save();viewCash()}
+function closeCash(){if(!requirePermission('cash'))return;const c=db.cashSessions.find(x=>!x.closedAt);c.salesTotal=db.sales.filter(s=>new Date(s.date)>=new Date(c.openedAt)).reduce((a,s)=>a+s.total,0);c.expensesTotal=db.expenses.filter(e=>new Date(e.date)>=new Date(c.openedAt)).reduce((a,e)=>a+e.value,0);c.finalBalance=c.openingBalance+c.salesTotal-c.expensesTotal;c.closedAt=new Date().toISOString();save();viewCash()}
+
+function viewReports(){if(!requirePermission('reports'))return;const r=db.sales.reduce((a,s)=>a+s.total,0),x=db.expenses.reduce((a,e)=>a+e.value,0);document.getElementById('main').innerHTML=`<h2>Relatórios</h2><div class="grid g3"><div class="card kpi"><h3>Receita total</h3><p class="ok">${money(r)}</p></div><div class="card kpi"><h3>Despesa total</h3><p style="color:#ff8a8d">${money(x)}</p></div><div class="card kpi"><h3>Resultado</h3><p class="${r-x>=0?'ok':'err'}">${money(r-x)}</p></div></div><div class="grid g2" style="margin-top:14px"><div class="card"><h3>Clientes por total gasto</h3><div class="table-wrap"><table><thead><tr><th>Cliente</th><th>Visitas</th><th>Total</th></tr></thead><tbody>${db.clients.map(c=>{const t=db.sales.filter(s=>s.clientId===c.id).reduce((a,s)=>a+s.total,0);return`<tr><td>${esc(c.name)}</td><td>${c.visits}</td><td class="ok">${money(t)}</td></tr>`}).join('')}</tbody></table></div></div><div class="card"><h3>Despesas por categoria</h3><div class="table-wrap"><table><thead><tr><th>Categoria</th><th>Total</th></tr></thead><tbody>${Object.entries(db.expenses.reduce((a,e)=>{a[e.category]=(a[e.category]||0)+e.value;return a},{})).map(([c,v])=>`<tr><td>${esc(c)}</td><td style="color:#ff8a8d">${money(v)}</td></tr>`).join('')}</tbody></table></div></div></div>`}
+
+/* ---------- FEEDBACK ---------- */
+let fbRating=0;
+function viewFeedback(){if(!requirePermission('feedback'))return;
+ const avg=db.feedback.length?(db.feedback.reduce((a,f)=>a+f.rating,0)/db.feedback.length):0;
+ document.getElementById('main').innerHTML=`
+ <div class="hero"><img src="${FACADE_IMG}" alt="Fachada da Fidelis BarberPro"><div class="overlay">
+  <div class="logo">FB</div>
+  <h2 style="margin:0">Fidelis <span style="color:var(--gold)">BarberPro</span></h2>
+  <p class="muted" style="margin:4px 0 0">Sua opinião ajuda a melhorar nosso atendimento</p>
+  <p style="margin:8px 0 0;font-size:1.3rem"><b>${avg?avg.toFixed(1):'—'} ★</b> <span class="muted">(${db.feedback.length} avaliações)</span></p>
+ </div></div>
+ <div class="card"><h3>Deixe seu feedback</h3>
+  <label>Cliente</label><select id="fbClient">${db.clients.filter(c=>c.active).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select>
+  <label>Avaliação</label><div class="stars" id="fbStars">${[1,2,3,4,5].map(i=>`<span data-v="${i}" onclick="setRating(${i})">★</span>`).join('')}</div>
+  <label>Comentário</label><textarea id="fbComment" rows="3" placeholder="Conte como foi sua experiência"></textarea>
+  <button class="primary" style="margin-top:12px" onclick="sendFeedback()">Enviar avaliação</button>
+ </div>
+ <h3 style="margin-top:20px">Avaliações recebidas</h3>
+ <div class="grid g2" id="fbList"></div>`;
+ renderFeedback();setRating(fbRating||0);
+}
+function setRating(n){fbRating=n;document.querySelectorAll('#fbStars span').forEach(s=>s.classList.toggle('on',+s.dataset.v<=n))}
+function stars(n){return '★'.repeat(n)+'☆'.repeat(5-n)}
+function sendFeedback(){
+ if(!requirePermission('feedback'))return;
+ const cid=document.getElementById('fbClient').value,cm=document.getElementById('fbComment').value.trim();
+ if(!fbRating)return alert('Selecione de 1 a 5 estrelas.');
+ if(cm.length<5)return alert('Escreva um comentário com pelo menos 5 caracteres.');
+ db.feedback.unshift({id:uid('f'),clientId:cid,rating:fbRating,comment:cm,date:new Date().toISOString()});
+ save();audit('feedback_create',`Avaliação ${fbRating} estrelas`);fbRating=0;viewFeedback();
+}
+function renderFeedback(){
+ document.getElementById('fbList').innerHTML=db.feedback.map(f=>{
+  const c=db.clients.find(x=>x.id===f.clientId);
+  return`<div class="review"><div style="display:flex;justify-content:space-between;align-items:center"><b>${esc(c?.name||'Cliente')}</b><span class="stars" style="cursor:default">${stars(f.rating)}</span></div>
+  <p style="margin:8px 0 4px">${esc(f.comment)}</p>
+  <div style="display:flex;justify-content:space-between;align-items:center"><span class="muted">${fmtDate(f.date)}</span>
+  ${currentUser.role==='admin'||currentUser.role==='gerente'?`<button class="danger" onclick="deleteFeedback('${f.id}')">Excluir</button>`:''}</div></div>`}).join('')||'<p class="muted">Nenhuma avaliação ainda.</p>';
+}
+function deleteFeedback(id){if(!requirePermission('feedback'))return;if(confirm('Excluir esta avaliação?')){db.feedback=db.feedback.filter(x=>x.id!==id);save();viewFeedback()}}
+</script>
+</body>
+</html>
